@@ -1,0 +1,7 @@
+note: BackingServiceInstance Example
+sample: |
+  apiVersion: prd.asiainfo.com/v1
+  kind: BackingServiceInstance
+  metadata:
+    name: backingserviceinstance-example
+  spec:

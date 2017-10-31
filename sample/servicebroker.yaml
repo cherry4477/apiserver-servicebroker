@@ -1,0 +1,5 @@
+apiVersion: prd.asiainfo.com/v1
+kind: ServiceBroker
+metadata:
+  name: servicebroker-example
+spec:

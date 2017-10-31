@@ -1,0 +1,5 @@
+apiVersion: prd.asiainfo.com/v1
+kind: BackingService
+metadata:
+  name: backingservice-example
+spec:
