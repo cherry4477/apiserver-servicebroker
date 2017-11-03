@@ -103,9 +103,9 @@ run-cluster:
 
 .PHONY: init
 init: # to create the skeleton of this project.
-	yes | \rm -rf .gitignore bin BUILD.bazel cmd docs glide.lock glide.yaml pkg sample vendor WORKSPACE boilerplate.go.txt
-	yes | \echo "$$GITIGNORE" > .gitignore
-	yes | \cp 0-non-gen/source-license-head boilerplate.go.txt
+	if [ ! -e .gitignore ]; then yes | echo "$$GITIGNORE" > .gitignore; fi
+	yes | \rm -rf bin BUILD.bazel cmd docs glide.lock glide.yaml pkg sample vendor WORKSPACE boilerplate.go.txt
+	if [ -e 0-non-gen/source-license-head ]; then yes | \cp 0-non-gen/source-license-head boilerplate.go.txt; else touch boilerplate.go.txt; fi
 	apiserver-boot init repo --domain asiainfo.com
 	apiserver-boot create group version resource --non-namespaced=true \
 		--group prd --version v1 --kind ServiceBroker

@@ -1,0 +1,10 @@
+apiVersion: prd.asiainfo.com/v1
+kind: ServiceBroker
+metadata:
+  name: servicebroker-example
+spec:
+  url: "localhost:33333"
+  name: "example"
+  username: "user"
+  password: "pass"
+

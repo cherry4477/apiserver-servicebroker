@@ -1,0 +1,10 @@
+openshift-broker:
+  image: golang:alpine
+  expose:
+    - '33333'
+  ports:
+    - 33333:33333
+  volumes:
+    - '.:/go/src/service-broker-example
+  working_dir: /go/src/service-broker-example
+  # command: tail -f /dev/null

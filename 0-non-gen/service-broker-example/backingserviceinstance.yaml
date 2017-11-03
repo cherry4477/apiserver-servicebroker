@@ -1,0 +1,8 @@
+apiVersion: prd.asiainfo.com/v1
+kind: BackingServiceInstance
+metadata:
+  name: backingserviceinstance-example
+spec:
+  provisioning:
+    backingservice_name: "MySQL"
+    backingservice_plan_guid: "726aa087-5a18-4a04-b449-5d455cecb29b"
