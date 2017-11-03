@@ -59,7 +59,7 @@ func (c *ServiceBrokerControllerImpl) Init(arguments sharedinformers.ControllerI
 // Reconcile handles enqueued messages
 func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 	// Implement controller logic here
-	log.Printf("Running reconcile ServiceBroker for %s\n", sb.Name)
+	log.Printf("Running reconcile ServiceBroker for %s (%s)\n", sb.Name, sb.Spec.Url)
 
 	if sb.Spec.Url == "" {
 		return nil
@@ -83,6 +83,8 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 				glog.Errorln("countWorkingBackingServiceInstance err ", err)
 				break
 			} else if numDependents > 0 {
+				log.Printf("Service broker %s can be deleted, for there are %d active related instances. =", sb.Name, numDependents)
+				sb.DeletionTimestamp = nil
 				break
 			}
 
@@ -91,6 +93,14 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 			needUpdate = true
 			if len(sb.GetFinalizers()) == 0 {
 				sb.DeletionTimestamp = nil // to enter the following switch block next time
+
+				c.inActiveBackingService(sb.Name)
+
+				// Looks the following line is useless.
+				// The following ServiceBroker_PhaseDeleting branch will never be entered.
+				// This sb will be deleted after this update,
+				// so no more update for it.
+				sb.Status.Phase = v1.ServiceBroker_PhaseDeleting
 			}
 			break
 		}
@@ -112,6 +122,7 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 				services, err := c.ServiceBrokerClient.Catalog(sb.Spec.Url, sb.Spec.UserName, sb.Spec.Password)
 				if err != nil {
 					c.Client.ServiceBrokers().Update(sb)
+					log.Println("Catalog err=", err)
 					return err
 				}
 
@@ -174,8 +185,7 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 		}
 
 	case v1.ServiceBroker_PhaseDeleting:
-		glog.Info("Inavtinging Bs", sb.Name)
-		c.inActiveBackingService(sb.Name)
+		glog.Info("Delete bs", sb.Name)
 		c.Client.ServiceBrokers().Delete(sb.Name, &meta_v1.DeleteOptions{})
 		//return nil
 
@@ -350,6 +360,7 @@ func (c *httpClient) Catalog(Url string, credential ...string) (ServiceList, err
 	b, err := c.Get(Url+"/v2/catalog", credential...)
 	if err != nil {
 		fmt.Printf("httpclient catalog err %s", err.Error())
+
 		return *services, err
 	}
 

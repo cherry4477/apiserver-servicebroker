@@ -1,4 +1,3 @@
-
 /*
 @asiainfo.com
 */
@@ -114,6 +113,10 @@ func (ServiceBrokerSchemeFns) DefaultingFunction(o interface{}) {
 	obj := o.(*ServiceBroker)
 	// set default field values here
 	log.Printf("Defaulting fields for ServiceBroker %s\n", obj.Name)
+
+	if len(obj.Status.Phase) == 0 {
+		obj.Status.Phase = ServiceBroker_PhaseNew
+	}
 }
 
 func (s ServiceBrokerStrategy) PrepareForCreate(ctx request.Context, obj runtime.Object) {

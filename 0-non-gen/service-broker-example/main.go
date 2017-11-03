@@ -57,6 +57,8 @@ type myServiceBroker struct {
 }
 
 func (myBroker *myServiceBroker) Services() []brokerapi.Service {
+	log.Println("Catalog is called.")
+
 	return services
 }
 

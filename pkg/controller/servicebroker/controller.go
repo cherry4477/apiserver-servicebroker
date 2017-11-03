@@ -59,12 +59,13 @@ func (c *ServiceBrokerControllerImpl) Init(arguments sharedinformers.ControllerI
 // Reconcile handles enqueued messages
 func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 	// Implement controller logic here
-	log.Printf("Running reconcile ServiceBroker for %s\n", sb.Name)
+	log.Printf("Running reconcile ServiceBroker for %s (%s)\n", sb.Name, sb.Spec.Url)
 
 	if sb.Spec.Url == "" {
 		return nil
 	}
 
+	log.Printf("111 sb.DeletionTimestamp =", sb.DeletionTimestamp)
 	// The sb is deleted from rest api, but there may be many dependents of the sb.
 	// We will do the real deletion only if all the dependents have been deleted.
 	if sb.DeletionTimestamp != nil {
@@ -83,17 +84,30 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 				glog.Errorln("countWorkingBackingServiceInstance err ", err)
 				break
 			} else if numDependents > 0 {
+				log.Printf("Service broker %s can be deleted, for there are %d active related instances. =", sb.Name, numDependents)
+				sb.DeletionTimestamp = nil
 				break
 			}
 
+			log.Printf("222 remove first finalizer", finalizers[0])
 			// ...
 			sb.SetFinalizers(finalizers[1:])
 			needUpdate = true
 			if len(sb.GetFinalizers()) == 0 {
 				sb.DeletionTimestamp = nil // to enter the following switch block next time
+
+				c.inActiveBackingService(sb.Name)
+
+				// Looks the following line is useless.
+				// The following ServiceBroker_PhaseDeleting branch will never be entered.
+				// This sb will be deleted after this update,
+				// so no more update for it.
+				sb.Status.Phase = v1.ServiceBroker_PhaseDeleting
 			}
 			break
 		}
+
+		log.Printf("333 needUpdate=", needUpdate, ", sb=", sb)
 
 		if needUpdate {
 			// Will delete the sb in the following swtich block.
@@ -103,17 +117,25 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 		return nil
 	}
 
+	log.Printf("444")
+
 	switch sb.Status.Phase {
 	case v1.ServiceBroker_PhaseNew:
+		log.Printf("555")
 		if getRetryTime(sb) <= 3 {
+			log.Printf("666")
 			if timeUp(v1.ServiceBroker_PingTimer, sb, 10) {
 				setRetryTime(sb)
 
+				log.Printf("777")
 				services, err := c.ServiceBrokerClient.Catalog(sb.Spec.Url, sb.Spec.UserName, sb.Spec.Password)
 				if err != nil {
 					c.Client.ServiceBrokers().Update(sb)
+					log.Println("777 err=", err)
 					return err
 				}
+
+				log.Printf("888")
 
 				errs := []error{}
 				for _, v := range services.Services {
@@ -126,6 +148,8 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 					removeRetryTime(sb)
 					sb.Status.Phase = v1.ServiceBroker_PhaseActive
 				}
+
+				log.Printf("999")
 
 				c.Client.ServiceBrokers().Update(sb)
 				//return nil
@@ -174,8 +198,7 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 		}
 
 	case v1.ServiceBroker_PhaseDeleting:
-		glog.Info("Inavtinging Bs", sb.Name)
-		c.inActiveBackingService(sb.Name)
+		glog.Info("Delete bs", sb.Name)
 		c.Client.ServiceBrokers().Delete(sb.Name, &meta_v1.DeleteOptions{})
 		//return nil
 
@@ -350,10 +373,13 @@ func (c *httpClient) Catalog(Url string, credential ...string) (ServiceList, err
 	b, err := c.Get(Url+"/v2/catalog", credential...)
 	if err != nil {
 		fmt.Printf("httpclient catalog err %s", err.Error())
+		log.Println("777 aaaa")
+
 		return *services, err
 	}
 
 	if err := json.Unmarshal(b, services); err != nil {
+		log.Println("777 bbbb")
 		return *services, err
 	}
 
