@@ -5,8 +5,6 @@
 package v1
 
 import (
-	"log"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/endpoints/request"
 
@@ -94,7 +92,7 @@ const (
 // Validate checks that an instance of ServiceBroker is well formed
 func (s ServiceBrokerStrategy) Validate(ctx request.Context, obj runtime.Object) field.ErrorList {
 	o := obj.(*prd.ServiceBroker)
-	log.Printf("Validating fields for ServiceBroker %s\n", o.Name)
+	//log.Printf("Validating fields for ServiceBroker %s\n", o.Name)
 
 	//errors := field.ErrorList{}
 
@@ -112,7 +110,7 @@ func (ServiceBrokerStatusStrategy) NamespaceScoped() bool { return false }
 func (ServiceBrokerSchemeFns) DefaultingFunction(o interface{}) {
 	obj := o.(*ServiceBroker)
 	// set default field values here
-	log.Printf("Defaulting fields for ServiceBroker %s\n", obj.Name)
+	//log.Printf("Defaulting fields for ServiceBroker %s\n", obj.Name)
 
 	if len(obj.Status.Phase) == 0 {
 		obj.Status.Phase = ServiceBroker_PhaseNew
@@ -123,7 +121,7 @@ func (s ServiceBrokerStrategy) PrepareForCreate(ctx request.Context, obj runtime
 	s.DefaultStorageStrategy.PrepareForCreate(ctx, obj)
 
 	o := obj.(*prd.ServiceBroker)
-	log.Printf("PrepareForCreating for ServiceBroker %s\n", o.Name)
+	//log.Printf("PrepareForCreating for ServiceBroker %s\n", o.Name)
 
 	// If the sb doesn't have a finalizer, k8s default api server will delete the sb when the DELETE API is called.
 	// To avoid this happening, each sb will be set a finalizer.

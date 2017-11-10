@@ -90,7 +90,7 @@ cluster-config:
 		--image apiserver-servicebroker:lastest
 
 .PHONY: run-local
-run-local:
+run-local: gen
 	apiserver-boot run local --generate=false
 	# --apiserver=
 	# --controller-manager=

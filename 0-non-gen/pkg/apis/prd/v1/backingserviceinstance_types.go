@@ -1,14 +1,10 @@
-
 /*
 @asiainfo.com
 */
 
-
 package v1
 
 import (
-	"log"
-
 	genericvalidation "k8s.io/apimachinery/pkg/api/validation"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/endpoints/request"
@@ -162,7 +158,7 @@ func validateBackingServiceInstanceSpec(spec *prd.BackingServiceInstanceSpec) fi
 // Validate checks that an instance of BackingServiceInstance is well formed
 func (s BackingServiceInstanceStrategy) Validate(ctx request.Context, obj runtime.Object) field.ErrorList {
 	o := obj.(*prd.BackingServiceInstance)
-	log.Printf("Validating fields for BackingServiceInstance %s\n", o.Name)
+	//log.Printf("Validating fields for BackingServiceInstance %s\n", o.Name)
 
 	//errors := field.ErrorList{}
 	// perform validation here and add to errors using field.Invalid
@@ -175,7 +171,8 @@ func (s BackingServiceInstanceStrategy) Validate(ctx request.Context, obj runtim
 func (BackingServiceInstanceSchemeFns) DefaultingFunction(o interface{}) {
 	obj := o.(*BackingServiceInstance)
 	// set default field values here
-	log.Printf("Defaulting fields for BackingServiceInstance %s\n", obj.Name)
+
+	//debug.PrintStack()
 
 	if len(obj.Status.Phase) == 0 {
 		obj.Status.Phase = BackingServiceInstancePhaseProvisioning

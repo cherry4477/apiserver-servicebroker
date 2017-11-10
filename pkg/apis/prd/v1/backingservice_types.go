@@ -5,8 +5,6 @@
 package v1
 
 import (
-	"log"
-
 	genericvalidation "k8s.io/apimachinery/pkg/api/validation"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/endpoints/request"
@@ -125,7 +123,7 @@ const (
 // Validate checks that an instance of BackingService is well formed
 func (s BackingServiceStrategy) Validate(ctx request.Context, obj runtime.Object) field.ErrorList {
 	o := obj.(*prd.BackingService)
-	log.Printf("Validating fields for BackingService %s\n", o.Name)
+	//log.Printf("Validating fields for BackingService %s\n", o.Name)
 
 	//errors := field.ErrorList{}
 	// perform validation here and add to errors using field.Invalid
@@ -139,7 +137,7 @@ func (BackingServiceStatusStrategy) NamespaceScoped() bool { return false }
 
 // DefaultingFunction sets default BackingService field values
 func (BackingServiceSchemeFns) DefaultingFunction(o interface{}) {
-	obj := o.(*BackingService)
+	//obj := o.(*BackingService)
 	// set default field values here
-	log.Printf("Defaulting fields for BackingService %s\n", obj.Name)
+	//log.Printf("Defaulting fields for BackingService %s\n", obj.Name)
 }

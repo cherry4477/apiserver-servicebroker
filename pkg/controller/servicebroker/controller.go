@@ -65,7 +65,6 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 		return nil
 	}
 
-	log.Printf("111 sb.DeletionTimestamp =", sb.DeletionTimestamp)
 	// The sb is deleted from rest api, but there may be many dependents of the sb.
 	// We will do the real deletion only if all the dependents have been deleted.
 	if sb.DeletionTimestamp != nil {
@@ -89,7 +88,6 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 				break
 			}
 
-			log.Printf("222 remove first finalizer", finalizers[0])
 			// ...
 			sb.SetFinalizers(finalizers[1:])
 			needUpdate = true
@@ -107,35 +105,27 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 			break
 		}
 
-		log.Printf("333 needUpdate=", needUpdate, ", sb=", sb)
-
 		if needUpdate {
 			// Will delete the sb in the following swtich block.
-			c.Client.ServiceBrokers().Update(sb)
+			//c.Client.ServiceBrokers().Update(sb)
+			UpdateServiceBroker(c.Client, sb)
 		}
 
 		return nil
 	}
 
-	log.Printf("444")
-
 	switch sb.Status.Phase {
 	case v1.ServiceBroker_PhaseNew:
-		log.Printf("555")
 		if getRetryTime(sb) <= 3 {
-			log.Printf("666")
 			if timeUp(v1.ServiceBroker_PingTimer, sb, 10) {
 				setRetryTime(sb)
 
-				log.Printf("777")
 				services, err := c.ServiceBrokerClient.Catalog(sb.Spec.Url, sb.Spec.UserName, sb.Spec.Password)
 				if err != nil {
-					c.Client.ServiceBrokers().Update(sb)
-					log.Println("777 err=", err)
+					//c.Client.ServiceBrokers().Update(sb)
+					UpdateServiceBroker(c.Client, sb)
 					return err
 				}
-
-				log.Printf("888")
 
 				errs := []error{}
 				for _, v := range services.Services {
@@ -149,14 +139,14 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 					sb.Status.Phase = v1.ServiceBroker_PhaseActive
 				}
 
-				log.Printf("999")
-
-				c.Client.ServiceBrokers().Update(sb)
+				//c.Client.ServiceBrokers().Update(sb)
+				UpdateServiceBroker(c.Client, sb)
 				//return nil
 			}
 		} else {
 			sb.Status.Phase = v1.ServiceBroker_PhaseFailed
-			c.Client.ServiceBrokers().Update(sb)
+			//c.Client.ServiceBrokers().Update(sb)
+			UpdateServiceBroker(c.Client, sb)
 
 			c.inActiveBackingService(sb.Name)
 			//return nil
@@ -166,7 +156,8 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 			services, err := c.ServiceBrokerClient.Catalog(sb.Spec.Url, sb.Spec.UserName, sb.Spec.Password)
 			if err != nil {
 				sb.Status.Phase = v1.ServiceBroker_PhaseFailed
-				c.Client.ServiceBrokers().Update(sb)
+				//c.Client.ServiceBrokers().Update(sb)
+				UpdateServiceBroker(c.Client, sb)
 
 				c.inActiveBackingService(sb.Name)
 				return err
@@ -179,19 +170,22 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 				}
 			}
 
-			c.Client.ServiceBrokers().Update(sb)
+			//c.Client.ServiceBrokers().Update(sb)
+			UpdateServiceBroker(c.Client, sb)
 			//return nil
 		}
 	case v1.ServiceBroker_PhaseFailed:
 		if timeUp(v1.ServiceBroker_PingTimer, sb, 60) {
 			_, err := c.ServiceBrokerClient.Catalog(sb.Spec.Url, sb.Spec.UserName, sb.Spec.Password)
 			if err != nil {
-				c.Client.ServiceBrokers().Update(sb)
+				//c.Client.ServiceBrokers().Update(sb)
+				UpdateServiceBroker(c.Client, sb)
 				return err
 			}
 
 			sb.Status.Phase = v1.ServiceBroker_PhaseActive
-			c.Client.ServiceBrokers().Update(sb)
+			//c.Client.ServiceBrokers().Update(sb)
+			UpdateServiceBroker(c.Client, sb)
 
 			c.ActiveBackingService(sb.Name)
 			//return nil
@@ -205,6 +199,30 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 	}
 
 	return nil
+}
+
+func UpdateServiceBroker(client prdclient_v1.PrdV1Interface, sb *v1.ServiceBroker) (*v1.ServiceBroker, error) {
+	o, err := client.ServiceBrokers().Update(sb)
+	if err != nil {
+		return o, err
+	}
+	// Generally, controllers should not modify specification,
+	// and APIs should not modify status.
+	// Now, here, the rule is broken.
+	o.Status = sb.Status
+	return client.ServiceBrokers().UpdateStatus(o)
+}
+
+func UpdateBackingService(client prdclient_v1.PrdV1Interface, bs *v1.BackingService) (*v1.BackingService, error) {
+	o, err := client.BackingServices( /*bs.Namespace*/ ).Update(bs)
+	if err != nil {
+		return o, err
+	}
+	// Generally, controllers should not modify specification,
+	// and APIs should not modify status.
+	// Now, here, the rule is broken.
+	o.Status = bs.Status
+	return client.BackingServices( /*o.Namespace*/ ).UpdateStatus(o)
 }
 
 func (c *ServiceBrokerControllerImpl) recoverBackingService(backingService *v1.BackingService) error {
@@ -229,7 +247,8 @@ func (c *ServiceBrokerControllerImpl) inActiveBackingService(serviceBrokerName s
 		for _, bsvc := range bsList.Items {
 			if bsvc.Status.Phase != v1.BackingService_PhaseInactive {
 				bsvc.Status.Phase = v1.BackingService_PhaseInactive
-				c.Client.BackingServices( /*v1.BackingService_NS*/ ).Update(&bsvc)
+				//c.Client.BackingServices( /*v1.BackingService_NS*/ ).Update(&bsvc)
+				UpdateBackingService(c.Client, &bsvc)
 			}
 		}
 	} else {
@@ -245,7 +264,8 @@ func (c *ServiceBrokerControllerImpl) ActiveBackingService(serviceBrokerName str
 		for _, bsvc := range bsList.Items {
 			if bsvc.Status.Phase != v1.BackingService_PhaseActive {
 				bsvc.Status.Phase = v1.BackingService_PhaseActive
-				c.Client.BackingServices( /*v1.BackingService_NS*/ ).Update(&bsvc)
+				//c.Client.BackingServices( /*v1.BackingService_NS*/ ).Update(&bsvc)
+				UpdateBackingService(c.Client, &bsvc)
 			}
 		}
 	}
@@ -337,7 +357,11 @@ func backingServiceHandler(client prdclient_v1.PrdV1Interface, backingService *v
 	} else {
 		newBs.Spec = backingService.Spec
 		newBs.Status.Phase = v1.BackingService_PhaseActive
-		if _, err := client.BackingServices( /*v1.BackingService_NS*/ ).Update(newBs); err != nil {
+		//if _, err := client.BackingServices( /*v1.BackingService_NS*/ ).Update(newBs); err != nil {
+		//	glog.Errorln("servicebroker update backingservice err ", err)
+		//	return err
+		//}
+		if _, err := UpdateBackingService(client, newBs); err != nil {
 			glog.Errorln("servicebroker update backingservice err ", err)
 			return err
 		}
@@ -373,13 +397,11 @@ func (c *httpClient) Catalog(Url string, credential ...string) (ServiceList, err
 	b, err := c.Get(Url+"/v2/catalog", credential...)
 	if err != nil {
 		fmt.Printf("httpclient catalog err %s", err.Error())
-		log.Println("777 aaaa")
 
 		return *services, err
 	}
 
 	if err := json.Unmarshal(b, services); err != nil {
-		log.Println("777 bbbb")
 		return *services, err
 	}
 

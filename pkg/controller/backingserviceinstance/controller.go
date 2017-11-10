@@ -80,7 +80,8 @@ func (c *BackingServiceInstanceControllerImpl) Reconcile(bsi *v1.BackingServiceI
 			//c.recorder.Eventf(bsi, kapi.EventTypeWarning, "New", err.Error())
 			bsi.Status.Phase = v1.BackingServiceInstancePhaseFailure
 			bsi.Status.Reason = err.Error()
-			c.Client.BackingServiceInstances(bsi.Namespace).Update(bsi)
+			//c.Client.BackingServiceInstances(bsi.Namespace).Update(bsi)
+			UpdateBackingServiceInstance(c.Client, bsi)
 			return err
 		} else {
 			bs = bsp
@@ -171,6 +172,7 @@ func (c *BackingServiceInstanceControllerImpl) Reconcile(bsi *v1.BackingServiceI
 		glog.Infoln("bsi provisioning servicebroker_create_instance, ", bsi.Name)
 
 		svcinstance, err := servicebroker_create_instance(serviceinstance, bsInstanceID, servicebroker)
+
 		if err != nil {
 			result = err
 			//c.recorder.Eventf(bsi, kapi.EventTypeWarning, "Provisioning", err.Error())
@@ -328,10 +330,24 @@ func (c *BackingServiceInstanceControllerImpl) Reconcile(bsi *v1.BackingServiceI
 	if changed {
 		// glog.Infoln("bsi etc changed and update. ", bsi.Name)
 
-		c.Client.BackingServiceInstances(bsi.Namespace).Update(bsi)
+		// c.Client.BackingServiceInstances(bsi.Namespace).Update(bsi)
+		UpdateBackingServiceInstance(c.Client, bsi)
 	}
 
 	return //nil
+}
+
+func UpdateBackingServiceInstance(client prdclient_v1.PrdV1Interface, bsi *v1.BackingServiceInstance) (*v1.BackingServiceInstance, error) {
+	o, err := client.BackingServiceInstances(bsi.Namespace).Update(bsi)
+	if err != nil {
+		return o, err
+	}
+	// Generally, controllers should not modify specification,
+	// and APIs should not modify status.
+	// Now, here, the rule is broken.
+	o.Status = bsi.Status
+	o, err = client.BackingServiceInstances(o.Namespace).UpdateStatus(o)
+	return o, err
 }
 
 //=====================================
