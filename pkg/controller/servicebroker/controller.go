@@ -68,10 +68,11 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 	// The sb is deleted from rest api, but there may be many dependents of the sb.
 	// We will do the real deletion only if all the dependents have been deleted.
 	if sb.DeletionTimestamp != nil {
-		needUpdate := sb.Status.Phase != v1.ServiceBroker_PhaseDeleting
-		if needUpdate {
-			// todo: disable all related backing service resources
-		}
+		//needUpdate := sb.Status.Phase != v1.ServiceBroker_PhaseDeleting
+		//if needUpdate {
+		// todo: disable all related backing service resources
+		//}
+		var needUpdate = false
 
 		for finalizers := sb.GetFinalizers(); len(finalizers) > 0; {
 			if finalizers[0] != prdutil.DataFoundryFinalizer() {
@@ -85,13 +86,15 @@ func (c *ServiceBrokerControllerImpl) Reconcile(sb *v1.ServiceBroker) error {
 			} else if numDependents > 0 {
 				log.Printf("Service broker %s can be deleted, for there are %d active related instances. =", sb.Name, numDependents)
 				sb.DeletionTimestamp = nil
+				needUpdate = true
 				break
 			}
 
 			// ...
 			sb.SetFinalizers(finalizers[1:])
+			finalizers = sb.GetFinalizers()
 			needUpdate = true
-			if len(sb.GetFinalizers()) == 0 {
+			if len(finalizers) == 0 {
 				sb.DeletionTimestamp = nil // to enter the following switch block next time
 
 				c.inActiveBackingService(sb.Name)
