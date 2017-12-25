@@ -31,7 +31,9 @@ FROM registry.new.dataos.io/datafoundry/golang:1.8.5-ca-certificate
 COPY . /go/src/github.com/asiainfoldp/apiserver-servicebroker
 WORKDIR /go/src/github.com/asiainfoldp/apiserver-servicebroker
 
-RUN go build ./cmd/apiserver \
+RUN cp -rf 0-non-gen/pkg/* pkg \
+    && cp -rf 0-non-gen/vendor/* vendor \
+    && go build ./cmd/apiserver \
     && go build ./cmd/controller-manager
 
 
