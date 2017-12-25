@@ -13,14 +13,25 @@
 #    && tar xvf apiserver-builder-v0.1-alpha.25-linux-amd64.tar.gz  -C /usr/local/bin --strip-components=1 \
 #    && rm apiserver-builder-v0.1-alpha.25-linux-amd64.tar.gz
 
-FROM golang:1.8.5-apiserver-boot
+# # For develop branch
+# FROM registry.new.dataos.io/datafoundry/golang:1.8.5-apiserver-boot
+# 
+# COPY . /go/src/github.com/asiainfoldp/apiserver-servicebroker
+# WORKDIR /go/src/github.com/asiainfoldp/apiserver-servicebroker
+# 
+# RUN cp -rf 0-non-gen/pkg/* pkg \
+#     && cp -rf 0-non-gen/vendor/* vendor \
+#     && apiserver-boot build generated \
+#     && apiserver-boot build executables --generate=false \
+#     && mv -f bin/* .
+
+# For master branch
+FROM registry.new.dataos.io/datafoundry/golang:1.8.5-ca-certificate
 
 COPY . /go/src/github.com/asiainfoldp/apiserver-servicebroker
 WORKDIR /go/src/github.com/asiainfoldp/apiserver-servicebroker
 
-RUN cp -rf 0-non-gen/pkg/* pkg \
-    && cp -rf 0-non-gen/vendor/* vendor \
-    && apiserver-boot build generated \
-    && apiserver-boot build executables --generate=false \
-    && mv -f bin/* .
+RUN go build ./cmd/apiserver \
+    && go build ./cmd/controller-manager
+
 
