@@ -8,8 +8,6 @@ docs/static_includes
 glide.lock
 glide.yaml
 kubeconfig
-pkg/client
-pkg/**/*generated*
 WORKSPACE
 
 0-non-gen/service-broker-example/service-broker-example
