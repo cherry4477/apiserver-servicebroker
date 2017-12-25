@@ -13,7 +13,7 @@
 #    && tar xvf apiserver-builder-v0.1-alpha.25-linux-amd64.tar.gz  -C /usr/local/bin --strip-components=1 \
 #    && rm apiserver-builder-v0.1-alpha.25-linux-amd64.tar.gz
 
-FROM golang:1.8.5-apiserver-boot
+FROM registry.new.dataos.io/datafoundry/golang:1.8.5-apiserver-boot
 
 COPY . /go/src/github.com/asiainfoldp/apiserver-servicebroker
 WORKDIR /go/src/github.com/asiainfoldp/apiserver-servicebroker
