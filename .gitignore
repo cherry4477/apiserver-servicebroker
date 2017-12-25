@@ -1,16 +1,8 @@
-apiserver.local.config
-bin
+/apiserver.local.config
+/bin
 BUILD.bazel
-config
-default.etcd
-docs/build
-docs/static_includes
-glide.lock
-glide.yaml
-kubeconfig
-pkg/client
-pkg/**/*generated*
-WORKSPACE
+/default.etcd
+/kubeconfig
+/WORKSPACE
 
-0-non-gen/service-broker-example/service-broker-example
-
+/0-non-gen/service-broker-example/service-broker-example

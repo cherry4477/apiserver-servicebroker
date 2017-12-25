@@ -101,19 +101,20 @@ run-cluster:
 		--name nameofservicetorun --namespace default \
 		--image apiserver-servicebroker:lastest
 
-.PHONY: init
-init: # to create the skeleton of this project.
-	if [ ! -e .gitignore ]; then yes | echo "$$GITIGNORE" > .gitignore; fi
-	yes | \rm -rf bin BUILD.bazel cmd docs glide.lock glide.yaml pkg sample vendor WORKSPACE boilerplate.go.txt
-	if [ -e 0-non-gen/source-license-head ]; then yes | \cp 0-non-gen/source-license-head boilerplate.go.txt; else touch boilerplate.go.txt; fi
-	apiserver-boot init repo --domain asiainfo.com
-	apiserver-boot create group version resource --non-namespaced=true \
-		--group prd --version v1 --kind ServiceBroker
-	apiserver-boot create group version resource --non-namespaced=true \
-		--group prd --version v1 --kind BackingService
-	apiserver-boot create group version resource --non-namespaced=false \
-		--group prd --version v1 --kind BackingServiceInstance
-	apiserver-boot create subresource --subresource binding \
-		--group prd --version v1 --kind BackingServiceInstance
-	apiserver-boot build generated
+# The master branch doesn't support init.
+##.PHONY: init
+##init: # to create the skeleton of this project.
+##	if [ ! -e .gitignore ]; then yes | echo "$$GITIGNORE" > .gitignore; fi
+##	yes | \rm -rf bin BUILD.bazel cmd docs glide.lock glide.yaml pkg sample vendor WORKSPACE boilerplate.go.txt
+##	if [ -e 0-non-gen/source-license-head ]; then yes | \cp 0-non-gen/source-license-head boilerplate.go.txt; else touch boilerplate.go.txt; fi
+##	apiserver-boot init repo --domain asiainfo.com
+##	apiserver-boot create group version resource --non-namespaced=true \
+##		--group prd --version v1 --kind ServiceBroker
+##	apiserver-boot create group version resource --non-namespaced=true \
+##		--group prd --version v1 --kind BackingService
+##	apiserver-boot create group version resource --non-namespaced=false \
+##		--group prd --version v1 --kind BackingServiceInstance
+##	apiserver-boot create subresource --subresource binding \
+##		--group prd --version v1 --kind BackingServiceInstance
+##	apiserver-boot build generated
 	

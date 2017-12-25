@@ -1,0 +1,187 @@
+
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1.prd.asiainfo.com
+  labels:
+    api: apiserver-servicebroker
+    apiserver: "true"
+spec:
+  version: v1
+  group: prd.asiainfo.com
+  groupPriorityMinimum: 2000
+  priority: 200
+  service:
+    name: apiserver-servicebroker
+    namespace: default
+  versionPriority: 10
+  caBundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUR4RENDQXF5Z0F3SUJBZ0lKQVBLOUhNRUFKUEtoTUEwR0NTcUdTSWIzRFFFQkN3VUFNSGN4Q3pBSkJnTlYKQkFZVEFuVnVNUXN3Q1FZRFZRUUlEQUp6ZERFS01BZ0dBMVVFQnd3QmJERUtNQWdHQTFVRUNnd0JiekVMTUFrRwpBMVVFQ3d3Q2IzVXhOakEwQmdOVkJBTU1MV0Z3YVhObGNuWmxjaTF6WlhKMmFXTmxZbkp2YTJWeUxXTmxjblJwClptbGpZWFJsTFdGMWRHaHZjbWwwZVRBZUZ3MHhOekV4TVRNd09EVTBNalJhRncweE9ERXhNVE13T0RVME1qUmEKTUhjeEN6QUpCZ05WQkFZVEFuVnVNUXN3Q1FZRFZRUUlEQUp6ZERFS01BZ0dBMVVFQnd3QmJERUtNQWdHQTFVRQpDZ3dCYnpFTE1Ba0dBMVVFQ3d3Q2IzVXhOakEwQmdOVkJBTU1MV0Z3YVhObGNuWmxjaTF6WlhKMmFXTmxZbkp2CmEyVnlMV05sY25ScFptbGpZWFJsTFdGMWRHaHZjbWwwZVRDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVAKQURDQ0FRb0NnZ0VCQUpNY3Y0K0cwOVJrbkJqSVNyVVFHVUVreWJEbktvMGthYXBOVGlyMzI4cGxaK2o2OXhmQQpycUdjS21IZk52VEd5a0hySjRMOGVpK3NiWE9oenI1bHVTblNNeVM3cnJaVWtDcVZNdlFZeVB3a1A5eHdZQStXCnJxbVlCRVIyTHhBaTJ2eHZScm1odklGWlNkV2xWc2tSU0c4RFd1MjdMMDUrc2UyYml2MVlWTkRZejZvV2tSNTQKRm9EVFlZZDAwYk9pR1BnLzdkL29ZemFTVU1mMnJDZWpWZnhudWdVYU9qekQ2N29oZEZhV1UwZjhRblVSNnFOdwo0TGQ1c1d5RGFnZ2EwdzZhdXpXdng4bFlOdVdLYThZMk03LzJhY2hpTUVJUW5tTk01M0ZGQ0oxaHJCSUtDdnRzCjhyZkorSURWb3k3dnNLUjhkZHdXZjZhVmRndXJvVm5pTGowQ0F3RUFBYU5UTUZFd0hRWURWUjBPQkJZRUZHKzYKZG9aN1RJRnhST2ZVOEZDWUcvSVBOeFhlTUI4R0ExVWRJd1FZTUJhQUZHKzZkb1o3VElGeFJPZlU4RkNZRy9JUApOeFhlTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQURXc0w3VTFzQnNiCnk1RGV3VzNPVEEzekZOQVkwcXdYdVhhTFAzR3VTeWZIOExGeGtaMFNTVUtyTWRXZTlGYnpoNmhDUzBCZGV6MTcKR0l0dTJlT3lsY1Bra0VkRVd6TDRISVJpaEJ6Nmk4QmxNa1dTVGxJWHoyZTZDYWhUcmhJQzh5Q2xudTAvNFpZUQpzRDJodU9XdWNpTENoaEhsU1lSVHhQb041ak8rN3VHR0hYTit4RGFXTERwcGpxWXdVbEQyZmprR3craG9TNEpiCm9SV1FUT3Z1OTFvd3RxUXd6Z0dmVGlqZW5KUWxZSVFYWVdyYlBnVEkwOUNSUHRVNXd0WnZDL2ZDWkpRN2lRdEgKOFFxRnNJQy9ZNUN5ejVYWmRDdGF2R2tPOXEwSjRVcU1Ed3RBNXY5c09LTkVzZ1hwRmhPczBrQ1B2WmIzZnB5SQo0V05Sbkc3WUVZVT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo="
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apiserver-servicebroker
+  namespace: default
+  labels:
+    api: apiserver-servicebroker
+    apiserver: "true"
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 443
+  selector:
+    api: apiserver-servicebroker
+    apiserver: "true"
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: apiserver-servicebroker
+  namespace: default
+  labels:
+    api: apiserver-servicebroker
+    apiserver: "true"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        api: apiserver-servicebroker
+        apiserver: "true"
+    spec:
+      containers:
+      - name: apiserver
+        image: apiserver-servicebroker:lastest
+        volumeMounts:
+        - name: apiserver-certs
+          mountPath: /apiserver.local.config/certificates
+          readOnly: true
+        command:
+        - "./apiserver"
+        args:
+        - "--etcd-servers=http://etcd-svc:2379"
+        - "--tls-cert-file=/apiserver.local.config/certificates/tls.crt"
+        - "--tls-private-key-file=/apiserver.local.config/certificates/tls.key"
+        - "--audit-log-path=-"
+        - "--audit-log-maxage=0"
+        - "--audit-log-maxbackup=0"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 100m
+            memory: 30Mi
+      - name: controller
+        image: apiserver-servicebroker:lastest
+        command:
+        - "./controller-manager"
+        args:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 100m
+            memory: 30Mi
+      volumes:
+      - name: apiserver-certs
+        secret:
+          secretName: apiserver-servicebroker
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: etcd
+  namespace: default
+spec:
+  serviceName: "etcd"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etcd
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: etcd
+        image: quay.io/coreos/etcd:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 100m
+            memory: 30Mi
+        env:
+        - name: ETCD_DATA_DIR
+          value: /etcd-data-dir
+        command:
+        - /usr/local/bin/etcd
+        - --listen-client-urls
+        - http://0.0.0.0:2379
+        - --advertise-client-urls
+        - http://localhost:2379
+        ports:
+        - containerPort: 2379
+        volumeMounts:
+        - name: etcd-data-dir
+          mountPath: /etcd-data-dir
+        readinessProbe:
+          httpGet:
+            port: 2379
+            path: /health
+          failureThreshold: 1
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
+        livenessProbe:
+          httpGet:
+            port: 2379
+            path: /health
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
+  volumeClaimTemplates:
+  - metadata:
+     name: etcd-data-dir
+     annotations:
+        volume.beta.kubernetes.io/storage-class: standard
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+         storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd-svc
+  namespace: default
+  labels:
+    app: etcd
+spec:
+  ports:
+  - port: 2379
+    name: etcd
+    targetPort: 2379
+  selector:
+    app: etcd
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/tls
+metadata:
+  name: apiserver-servicebroker
+  namespace: default
+  labels:
+    api: apiserver-servicebroker
+    apiserver: "true"
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURZRENDQWtnQ0NRQ3l0K3BCYldBVUd6QU5CZ2txaGtpRzl3MEJBUXNGQURCM01Rc3dDUVlEVlFRR0V3SjEKYmpFTE1Ba0dBMVVFQ0F3Q2MzUXhDakFJQmdOVkJBY01BV3d4Q2pBSUJnTlZCQW9NQVc4eEN6QUpCZ05WQkFzTQpBbTkxTVRZd05BWURWUVFEREMxaGNHbHpaWEoyWlhJdGMyVnlkbWxqWldKeWIydGxjaTFqWlhKMGFXWnBZMkYwClpTMWhkWFJvYjNKcGRIa3dIaGNOTVRjeE1URXpNRGcxTkRJMFdoY05NVGd4TVRFek1EZzFOREkwV2pCdE1Rc3cKQ1FZRFZRUUdFd0oxYmpFTE1Ba0dBMVVFQ0F3Q2MzUXhDakFJQmdOVkJBY01BV3d4Q2pBSUJnTlZCQW9NQVc4eApDekFKQmdOVkJBc01BbTkxTVN3d0tnWURWUVFERENOaGNHbHpaWEoyWlhJdGMyVnlkbWxqWldKeWIydGxjaTVrClpXWmhkV3gwTG5OMll6Q0NBU0l3RFFZSktvWklodmNOQVFFQkJRQURnZ0VQQURDQ0FRb0NnZ0VCQUxocEt5S3IKVTdFeDNoSWdsUThsWkUrazZNaTZ0ODJXeThHNFp5b0s4dmIwbDYrK1hsTEZVUy8rSWVleXFGWVRwanptWkV1dwpUbTA0b2JoVXlvM3ZBQmh3RnhYc0xtYnp1M2prSFRJNHdGZ0o1RnU5eHhaSXpYbFBveStHekMvSDVHcWIyOFN3CklCY0lUaTVGUHpkeHB0Y1Y3NXZTVk1nc21BY2wrMzQ0S3BVVnYyU0VJZUEzY0NRWUcvbU9uREw4UVJVbUgxTHkKWXJRSW91RWptSm1SYzdtYVZ6SU9VZWJlOWtWVllmTlVtelFWQ3FEREIvL1JVQmxpckNUM2JIZEhhY21xNnQ4Rwp2UXk4a3B5czBmNmkvRmM3SUZ3QmFCZk9oRWhZZFFBeHVCMjlFYnBDVkp0aHVqSlphbDJ5dDFOVEVqSnBuZWF3CkZ3azFVMWs5LytjaEpZVUNBd0VBQVRBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQWlicXhyUGZjbUlOVmxMdUQKcy9PSWI1cFNnQ2hRWFhLSVkwWjhIRzZqM2pHVDJic0R5b1N5M2kwQjVNN0lTN21WYWR6V1pJZkVwTGdvSVd1SApxYU03TVNWUHNyMHkzbEJFNTBHNWJOcmFaVDdScUJLYktWUzNqeVNxNGwyekpUdjM1UjZsQ1pLZTJLRDZPU0p2Ckw4Q0VCN0RYY29OZTBXNGo1NXR3U1JHSzIyUDlOYTRxRFdvR2N0TVBzWHZwb0J5WmJJK1V1eWhWTDgvYVlzTHYKR2UzRk5QSURpd3hZNlJLNjUxdWx4dnZPaUhQZ1d4aDc0dTZESnNPSnFBZU9DdUVZTFFMRmpmVDFpRmExNEhTego5YlhXYmR5OHdBQS9YVWRnc004cXJhU3QwK0NHaTFiK3N3NUFuRkFyTTkrVWo5dDI2QkFsdHRsd0U4RjFzNE96CkJnTWNCQT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktnd2dnU2tBZ0VBQW9JQkFRQzRhU3NpcTFPeE1kNFMKSUpVUEpXUlBwT2pJdXJmTmxzdkJ1R2NxQ3ZMMjlKZXZ2bDVTeFZFdi9pSG5zcWhXRTZZODVtUkxzRTV0T0tHNApWTXFON3dBWWNCY1Y3QzVtODd0NDVCMHlPTUJZQ2VSYnZjY1dTTTE1VDZNdmhzd3Z4K1JxbTl2RXNDQVhDRTR1ClJUODNjYWJYRmUrYjBsVElMSmdISmZ0K09DcVZGYjlraENIZ04zQWtHQnY1anB3eS9FRVZKaDlTOG1LMENLTGgKSTVpWmtYTzVtbGN5RGxIbTN2WkZWV0h6VkpzMEZRcWd3d2YvMFZBWllxd2s5MngzUjJuSnF1cmZCcjBNdkpLYwpyTkgrb3Z4WE95QmNBV2dYem9SSVdIVUFNYmdkdlJHNlFsU2JZYm95V1dwZHNyZFRVeEl5YVozbXNCY0pOVk5aClBmL25JU1dGQWdNQkFBRUNnZ0VBUkJlWk5PRDhNemFOb0RYbHRFVURTQ0ZGVHpFYXcxQUdCbzdYa1ArZi9TNE4KZ0hnVGpnNkx6dVBRa3lRMTRpcTVQRTE2QlRTaGtOVFRhaVBzOHdHb0VGMzdPRDRRV0RWeEtNOWFOSHdlRWFQOQpiUjZqRDRoc1Rubm9jSmtlZGhvaUxuZEVhOWo0MEdoaHJkWWw1SXdUcGVIVXFyMjhUbm1nM1NyYU5SMzZJemZXCnpVY2hZbHJvQjRBbjdhYnhzV21HaXFnSzd3K2t3OW55SG5qT05aUmNPcGRZUGd4ajBsWW5LWGVqMjZMaW44a3EKV1hOeFNJOCsvS0plSGJYVm9RZ0dQUEZLbzd0MnJRbTFnMmd5TStiOFE1cHBBU0lNNEp3NUdjRGdqK3BCeTZZdQpuSjBrdEs4c2NJZlFoWGRsREtDL3d3VHlMUTF2UWpyU2JFNkVnNnM4b1FLQmdRRG1NamhBcUVEOTFIejVTMzN3Ck5lU0t4bjJ3SGRGMmpGZGVyVFQxeStKOFEyS0J1S1l0RnM0bFdIZ3hQL3lFY2VLNFZOZjBKb3JNZUNvYktxZFYKVm93blZwdFdDc3lUNDBLNGI5SEtiUFhrSittTzFQUmdaZU93QVRlenhWcG1JYm9WRjl2ZjBDWXlBSFVUM1BkSAorQ1lBOHNLeW1PMC82cWI1d0piazZteEE2UUtCZ1FETkZSUDc4a3dXOG1TVisyQ2Z0cHBQVEZCV1ZkZmJBd3pPCmJ2N0laWjkxdmtQbi9tdDZRRkcyY3oxc2FuS0FkTk1KRXJoWC9OdUFtRW5nU1k5dStoUmxHei8rdkJCVHlqVmUKYnBpajVLVVZubFpxODNFMmJRRkZMVGhuNzJUWk4xUDhzelBDTGtOc0wxbXQxdlpLY2lxT1dPQVY4cEJvTy84VgpPOWdoVW10K1BRS0JnUUNnMjA3N3Y1ZEt5SVZjSHlpdUJycmhUcnJkcXJpSVFxRjdBMFlTekpwRGcwTCtxdTFVCmJLODQ0WTE3dk43VUhsRHp4alh4NGt6emZMVFByd3FuVTRjMHBneCtINlc5WWYxcHJKbkkva01GWCs2UlpMWXYKOW9NWXBvRXFHaXFGVytRUWdVK2dJbS9PV1F0M0NkMnlhUEVGa0o0RTkyQXlYZUs0ZTUvMTd1b2VvUUtCZ0UzegpLd3RpaDBWWmtKM3BWRXFnajNxQW1UQ1hwRm9jaUt1V1NNVkd5eHRuM0V1N3lvSkhIRWZxK1hmUjVmK3BaK1ZVCjlqaUxaYXMxTnk5SEJudTZGakp2N3gwVndtYjJ2dDVMenp6TVZXc29LZFN3LzJFZWdaTVhvdzd1VVRpMjdQZHAKN2N4cTVUbWpyY1NEcGsyWm8wOUR2TGphMzhTZXVWQUsxUldsVERKSkFvR0JBT1RBcWp4VGowTnFQSWRNVGsxOQpXdThMQlRJQUM1MGFNRG5abDErVE02bGowS2Y5S2ZWWThIejlrZHJ3LzZkeHVST3N6K2lXSW5NdHdUdVZkMXJhCnhtR0laNzY5cVBrWVNVUXRkelB5N3FWMTR4SEFZdUhtZWg4Z1kzSm1CNWNPQUhNNndYaVVCUllNUUsweWc3QysKZFpRT08wOHpBRDQrZXAxRzFEeFkvYTZKCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
