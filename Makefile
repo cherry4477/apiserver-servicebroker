@@ -1,17 +1,14 @@
 define GITIGNORE
-apiserver.local.config
-bin
+/apiserver.local.config
+/bin
 BUILD.bazel
-config
-default.etcd
-docs/build
-docs/static_includes
-glide.lock
-glide.yaml
-kubeconfig
-pkg/client
-pkg/**/*generated*
-WORKSPACE
+/default.etcd
+/kubeconfig
+/WORKSPACE
+
+/0-non-gen/service-broker-example/service-broker-example
+/apiserver
+/controller-manager
 
 endef
 export GITIGNORE
@@ -19,12 +16,22 @@ export GITIGNORE
 ##############################
 
 .PHONY: default
-default: build
+default: release
 
 .PHONY: clean
 clean:
-	rm -rf bin pkg/client
-	find pkg -type f -name "*generated*" -delete
+	rm -rf bin
+
+.PHONY: release
+release:
+	go build -o bin/apiserver ./cmd/apiserver
+	go build -o bin/controller-manager ./cmd/controller-manager
+
+.PHONY: image
+image:
+	docker build -t apiserver-servicebroker .
+
+##############################
 
 .PHONY: test
 test:
@@ -33,6 +40,11 @@ test:
 .PHONY: docs
 docs:
 	apiserver-boot build docs
+
+.PHONY: clean-dev
+clean-dev:
+	rm -rf bin pkg/client
+	find pkg -type f -name "*generated*" -delete
 
 # copy gen to non-gen
 .PHONY: g2ng
@@ -69,8 +81,8 @@ build: gen
 build2: ng2g
 	apiserver-boot build executables --generate=false
 
-.PHONY: image
-image:
+.PHONY: image-dev
+image-dev:
 	apiserver-boot build container \
 		--image apiserver-servicebroker \
 		--generate false
