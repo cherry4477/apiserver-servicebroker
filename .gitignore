@@ -8,4 +8,3 @@ BUILD.bazel
 /0-non-gen/service-broker-example/service-broker-example
 /apiserver
 /controller-manager
-

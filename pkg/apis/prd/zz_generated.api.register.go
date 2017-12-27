@@ -97,14 +97,14 @@ func Resource(resource string) schema.GroupResource {
 }
 
 // +genclient
-// +genclient
+// +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type BackingServiceInstance struct {
+type BackingService struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
-	Spec   BackingServiceInstanceSpec
-	Status BackingServiceInstanceStatus
+	Spec   BackingServiceSpec
+	Status BackingServiceStatus
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -118,88 +118,8 @@ type Binding struct {
 	Parameters          map[string]string
 }
 
-type BackingServiceInstanceStatus struct {
-	Phase         string
-	Action        string
-	Patch         string
-	Reason        string
-	LastOperation *LastOperation
-}
-
-type BackingServiceInstanceSpec struct {
-	InstanceProvisioning
-	UserProvidedService
-	Binding    []InstanceBinding
-	Bound      int
-	InstanceID string
-	Tags       []string
-}
-
-type LastOperation struct {
-	State                    string
-	Description              string
-	AsyncPollIntervalSeconds int
-}
-
-type InstanceBinding struct {
-	BoundTime            *meta.Time
-	BindUuid             string
-	BindDeploymentConfig string
-	BindHadoopUser       string
-	Credentials          map[string]string
-}
-
-type UserProvidedService struct {
-	Credentials map[string]string
-}
-
-type InstanceProvisioning struct {
-	DashboardUrl           string
-	BackingServiceName     string
-	BackingServiceSpecID   string
-	BackingServicePlanGuid string
-	BackingServicePlanName string
-	Parameters             map[string]string
-	Creds                  map[string]string
-	Accesses               map[string][]string
-}
-
-// +genclient
-// +genclient:nonNamespaced
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type BackingService struct {
-	metav1.TypeMeta
-	metav1.ObjectMeta
-	Spec   BackingServiceSpec
-	Status BackingServiceStatus
-}
-
-// +genclient
-// +genclient:nonNamespaced
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type ServiceBroker struct {
-	metav1.TypeMeta
-	metav1.ObjectMeta
-	Spec   ServiceBrokerSpec
-	Status ServiceBrokerStatus
-}
-
 type BackingServiceStatus struct {
 	Phase string
-}
-
-type ServiceBrokerStatus struct {
-	Phase string
-}
-
-type ServiceBrokerSpec struct {
-	Url        string
-	Name       string
-	UserName   string
-	Password   string
-	Finalizers []corev1.FinalizerName
 }
 
 type BackingServiceSpec struct {
@@ -215,12 +135,27 @@ type BackingServiceSpec struct {
 	DashboardClient map[string]string
 }
 
+// +genclient
+// +genclient:nonNamespaced
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type ServiceBroker struct {
+	metav1.TypeMeta
+	metav1.ObjectMeta
+	Spec   ServiceBrokerSpec
+	Status ServiceBrokerStatus
+}
+
 type ServicePlan struct {
 	Name        string
 	Id          string
 	Description string
 	Metadata    ServicePlanMetadata
 	Free        bool
+}
+
+type ServiceBrokerStatus struct {
+	Phase string
 }
 
 type ServicePlanMetadata struct {
@@ -230,9 +165,12 @@ type ServicePlanMetadata struct {
 	Customize   map[string]CustomizeSpec
 }
 
-type ServicePlanCost struct {
-	Amount map[string]float64
-	Unit   string
+type ServiceBrokerSpec struct {
+	Url        string
+	Name       string
+	UserName   string
+	Password   string
+	Finalizers []corev1.FinalizerName
 }
 
 type CustomizeSpec struct {
@@ -242,6 +180,68 @@ type CustomizeSpec struct {
 	Step    float64
 	Unit    string
 	Desc    string
+}
+
+type ServicePlanCost struct {
+	Amount map[string]float64
+	Unit   string
+}
+
+// +genclient
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type BackingServiceInstance struct {
+	metav1.TypeMeta
+	metav1.ObjectMeta
+	Spec   BackingServiceInstanceSpec
+	Status BackingServiceInstanceStatus
+}
+
+type BackingServiceInstanceSpec struct {
+	InstanceProvisioning
+	UserProvidedService
+	Binding    []InstanceBinding
+	Bound      int
+	InstanceID string
+	Tags       []string
+}
+
+type BackingServiceInstanceStatus struct {
+	Phase         string
+	Action        string
+	Patch         string
+	Reason        string
+	LastOperation *LastOperation
+}
+
+type InstanceBinding struct {
+	BoundTime            *meta.Time
+	BindUuid             string
+	BindDeploymentConfig string
+	BindHadoopUser       string
+	Credentials          map[string]string
+}
+
+type LastOperation struct {
+	State                    string
+	Description              string
+	AsyncPollIntervalSeconds int
+}
+
+type UserProvidedService struct {
+	Credentials map[string]string
+}
+
+type InstanceProvisioning struct {
+	DashboardUrl           string
+	BackingServiceName     string
+	BackingServiceSpecID   string
+	BackingServicePlanGuid string
+	BackingServicePlanName string
+	Parameters             map[string]string
+	Creds                  map[string]string
+	Accesses               map[string][]string
 }
 
 //
